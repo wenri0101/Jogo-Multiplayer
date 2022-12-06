@@ -18,49 +18,98 @@
         const context = screen.getContext('2d')
         const currentPlayerId = 'player1'
 
-        const game = {
-            players: {
-                'player1': { x: 1, y:1},
-                'player2': {x: 9, y:9 }
-            },
-            fruits:{
-                'fruit1': {x: 3, y:1}
+        
+        function createGame(){
+            const state = {
+                players: {
+                    'player1': { x: 1, y:1},
+                    'player2': {x: 9, y:9 }
+                },
+                fruits:{
+                    'fruit1': {x: 3, y:1}
+                }
+    
             }
 
-        }
-        document.addEventListener('keydown', handleKeydown)
+            function movePlayer(command){
+                console.log(`Moving ${command.playerId} width ${command.keyPressed}`)
 
-        function handleKeydown(event){
-            const keyPress = event.key
-            const player = game.players[currentPlayerId]
+                const keyPressed = command.keyPressed
+                const player = state.players[command.playerId]
 
-            if(keyPress === 'ArrowUp' && player.y -1 >= 0){
+       
+          if(keyPressed === 'ArrowUp' && player.y -1 >= 0){
                player.y = player.y -1
             }
-            if(keyPress === 'ArrowRight' && player.x +1 < screen.width){
+            if(keyPressed === 'ArrowRight' && player.x +1 < screen.width){
               player.x = player.x + 1
             }
-            if(keyPress === 'ArrowDown' && player.y + 1 < screen.height){
+            if(keyPressed === 'ArrowDown' && player.y + 1 < screen.height){
               player.y = player.y + 1
             }
-            if(keyPress === 'ArrowLeft' && player.x - 1 >=0){
+            if(keyPressed === 'ArrowLeft' && player.x - 1 >=0){
                player.x = player.x -1
             }
-            if(keyPress === 'w' && player.y -1 >= 0){
+            if(keyPressed === 'w' && player.y -1 >= 0){
                 player.y = player.y -1
             }
-            if(keyPress === 'a' && player.x - 1 >=0 ){
+            if(keyPressed === 'a' && player.x - 1 >=0 ){
                 player.x = player.x -1
             }
-            if(keyPress === 's' && player.y + 1 < screen.height){
+            if(keyPressed === 's' && player.y + 1 < screen.height){
                 player.y = player.y + 1
             }
-            if(keyPress === 'd' && player.x +1 < screen.width){
+            if(keyPressed === 'd' && player.x +1 < screen.width){
                 player.x = player.x + 1
             }
-          
+            }
+
+            return{
+                movePlayer,
+                state
+            }
+
         }
 
+        const game = createGame()
+        const keyboardListner = createKeyboarLister()
+        //const network = createNetwork()
+        keyboardListner.subscribe(game.movePlayer)
+        //keyboardListner.subscribe(network.updade)
+        
+        function createKeyboarLister(){
+            const state ={
+                observers: []
+            }
+
+            function subscribe(observerFunction){
+                state.observers.push(observerFunction)
+            }
+
+            function notifyAll(command){
+                console.log(`Notifyng ${state.observers.length} observers`)
+
+                for(const observerFunction of state.observers){
+                    observerFunction(command)
+                }
+            }
+
+            document.addEventListener('keydown', handleKeydown)
+
+                function handleKeydown(event){
+                    const keyPressed = event.key
+
+                    const command={
+                        playerId: 'player1',
+                        keyPressed
+                    }
+                
+                    notifyAll(command)
+                }
+                return{
+                    subscribe
+                }
+        }
 
         renderScreen()
 
@@ -68,21 +117,20 @@
             context.fillStyle = 'white'
             context.clearRect(0, 0, 10, 10)
 
-            for(const playerId in game.players){
-                const player = game.players[playerId]
+            for(const playerId in game.state.players){
+                const player = game.state.players[playerId]
                 context.fillStyle = 'black'
                 context.fillRect(player.x, player.y, 1,1)
             }
 
-            for(const fruitId in game.fruits){
-                const fruit =   game.fruits[fruitId]
+            for(const fruitId in game.state.fruits){
+                const fruit =   game.state.fruits[fruitId]
                 context.fillStyle = 'green'
                 context.fillRect(fruit.x, fruit.y, 1,1)
             }
 
             requestAnimationFrame(renderScreen)
         }
-
       
     </script>
 
