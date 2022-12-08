@@ -32,36 +32,76 @@
             }
 
             function movePlayer(command){
-                console.log(`Moving ${command.playerId} width ${command.keyPressed}`)
+                console.log(`game.movePlayer() => Moving ${command.playerId} width ${command.keyPressed}`)
+
+                const acceptedMovies={
+                    ArrowUp(player){
+                        console.log('Moving player Up')
+                        if(player.y -1 >= 0){
+                            player.y = player.y -1
+                            
+                        }   
+                    },
+                    ArrowRight(player){
+                        console.log('Moving player Right')
+                        if(player.x +1 < screen.width){
+                            player.x = player.x + 1
+                            
+                         }
+                    },
+                    ArrowDown(player){
+                        console.log('Moving player Down')
+                        if(player.y + 1 < screen.height){
+                            player.y = player.y + 1
+                            
+                          }
+                    },
+                    ArrowLeft(player){
+                        console.log('Moving player left')                       
+                        if(player.x - 1 >=0){
+                            player.x = player.x -1
+                            
+                         }
+                    },
+                    w(player){
+                        console.log('Moving player Up W')
+                            if(player.y -1 >= 0){
+                            player.y = player.y -1
+                            
+                         }
+                    },
+                    a(player){
+                        console.log('Moving player A')
+                            if(player.x - 1 >=0 ){
+                            player.x = player.x -1
+                            
+                        }
+                    },
+                    s(player){
+                        console.log('Moving player S')
+                            if(player.y + 1 < screen.height){
+                            player.y = player.y + 1
+                            
+                         }
+                    },
+                    d(player){
+                        console.log('Moving player D')
+                        if(player.x +1 < screen.width){
+                        player.x = player.x + 1
+                        
+                         }
+                    }
+                }
 
                 const keyPressed = command.keyPressed
                 const player = state.players[command.playerId]
+                const moveFunction = acceptedMovies[keyPressed]
 
-       
-          if(keyPressed === 'ArrowUp' && player.y -1 >= 0){
-               player.y = player.y -1
-            }
-            if(keyPressed === 'ArrowRight' && player.x +1 < screen.width){
-              player.x = player.x + 1
-            }
-            if(keyPressed === 'ArrowDown' && player.y + 1 < screen.height){
-              player.y = player.y + 1
-            }
-            if(keyPressed === 'ArrowLeft' && player.x - 1 >=0){
-               player.x = player.x -1
-            }
-            if(keyPressed === 'w' && player.y -1 >= 0){
-                player.y = player.y -1
-            }
-            if(keyPressed === 'a' && player.x - 1 >=0 ){
-                player.x = player.x -1
-            }
-            if(keyPressed === 's' && player.y + 1 < screen.height){
-                player.y = player.y + 1
-            }
-            if(keyPressed === 'd' && player.x +1 < screen.width){
-                player.x = player.x + 1
-            }
+                if(moveFunction){
+                    moveFunction(player)
+
+                }
+     
             }
 
             return{
@@ -87,7 +127,7 @@
             }
 
             function notifyAll(command){
-                console.log(`Notifyng ${state.observers.length} observers`)
+                console.log(`keyboardListner => Notifyng ${state.observers.length} observers`)
 
                 for(const observerFunction of state.observers){
                     observerFunction(command)
