@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Joguinho massa</title>
-    <link rel="stylesheet" href="css/style.css">
+    <!-- <link rel="stylesheet" href="/css/style.css"> -->
     <style>
 
     #screen{
@@ -15,10 +15,8 @@
         image-rendering: -moz-crisp-edges;
         width: 400px;
         height: 400px;
-
     }
 
-    
     </style>
     <script src="/socket.io/socket.io.js"></script>
 </head>
@@ -31,26 +29,60 @@
         import createKeyboarLister from './keyboard-listener.js'
         const game = createGame()
         const keyboardListner = createKeyboarLister(document)
-        keyboardListner.subscribe(game.movePlayer)
+        
+        
+        const socket = io()
+        
+        socket.on('connect', ()=>{
+            const playerId = socket.id
+            console.log(`Player conected on Client with id: ${playerId}`)
 
-        const screen = document.getElementById('screen')
-        renderScreen(screen, game, requestAnimationFrame)
-    
-    const socket = io()
+            const screen = document.getElementById('screen')
+            renderScreen(screen, game, requestAnimationFrame, playerId)
+            
+        })
+        
+        socket.on('setup',(state)=>{
+            const playerId  = socket.id
+            game.setState(state)
 
-    socket.on('connect', ()=>{
-        const playerId = socket.id
-        console.log(`Player conected on Client with id: ${playerId}`)
-
+            keyboardListner.registerPlayerId(playerId)
+            keyboardListner.subscribe(game.movePlayer)
+            keyboardListner.subscribe((command)=>{
+                socket.emit('move-player', command)
+            })
     })
 
-    socket.on('setup',(state)=>{
-        console.log(`Receiving "setup" event from server`)
-        console.log(state)
-
-        game.state = state
+    socket.on('add-player',(command)=>{
+     console.log(`Receiving ${command.type} -> ${command.playerId}`)
+     game.addPlayer(command)
     })
    
+    socket.on('remove-player',(command)=>{
+     console.log(`Receiving ${command.type} -> ${command.playerId}`)
+     game.removePlayer(command)
+    })
+
+    socket.on('move-player',(command)=>{
+     console.log(`Receiving ${command.type} -> ${command.playerId}`)
+
+     const playerId = socket.id
+
+     if(playerId !== command.playerId){
+         game.movePlayer(command)
+     }
+
+    })
+   
+    socket.on('add-fruit',(command)=>{
+     console.log(`Receiving ${command.type} -> ${command.fruitId}`)
+     game.addFruit(command)
+    })
+
+    socket.on('remove-fruit',(command)=>{
+     console.log(`Receiving ${command.type} -> ${command.fruitId}`)
+     game.removeFruit(command)
+    })
 
     </script>
 
